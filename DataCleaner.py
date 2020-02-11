@@ -13,14 +13,21 @@ from datetime import datetime as dt
 
 
 def DataClean(filename):
-	data = pd.read_csv(filename + '.csv', sep=',', low_memory=False)
-	data = data.duplicates(subset=None, keep='first')
+	data = pd.read_csv(filename + '.csv', encoding = 'utf8')
 
-	np.savetxt("Cleaned_Roles.csv", data, delimiter=",")
+	data = data.drop_duplicates()
+	data = data.drop(["Skill & Proficiency", "Candidates"], axis=1)
+	pd.set_option('display.width', 10)
 
-	AssignmentTitle = data['Assignment Title']
+	indexAssignmentTitle = data[data['Assignment Title'].str.contains("Copy")].index
+
+	data.drop(indexAssignmentTitle, inplace=True)
+
+	print(len(data))
+	data.to_csv("Cleaned_Roles.csv", index=False)
 
 
 
-filename = "CSV_Roles"
+
+filename = "CSV_RolesFixed"
 DataClean(filename)
