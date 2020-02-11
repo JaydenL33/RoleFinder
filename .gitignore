@@ -69,3 +69,4 @@ dmypy.json
 
 .vscode
 *.db
+*/.ipynb_checkpoints
