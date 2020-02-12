@@ -53,17 +53,18 @@ def Translator(filename):
 
 def DataAppend(Tagged):
 	Roles = pd.read_csv("Cleaned_Roles.csv", encoding='utf8')
-	Roles.insert(len(Roles.columns), "Quadrant 1", 0, True)
-	Roles.insert(len(Roles.columns), "Quadrant 2", 0, True)
+	Roles.insert(len(Roles.columns), "Quadrant 1", "Blank", True)
+	Roles.insert(len(Roles.columns), "Quadrant 2", "Blank", True)
 	for index, row in Roles.iterrows():
 		for taggedIndex, taggedRow in Tagged.iterrows():
 			if taggedRow["Assigned Role"] == row["Assigned Role"]:
-				row["Quadrant 1"] = taggedRow["Quadrant 1"]
-				row["Quadrant 2"] = taggedRow["Quadrant 2"]
-				print(row["Quadrant 1"] + "Position: " + str(index))
-				print(row["Quadrant 2"] + "Position: " + str(index))
-				
+				row["Quadrant 1"] = str(taggedRow["Quadrant 1"])
+				row["Quadrant 2"] = str(taggedRow["Quadrant 2"])
+				print("Done:" str(index)
+	print(Roles)
+	
 	Roles.to_csv("AssignRolesTagged.csv", index=False)
+				
 	
 
 
