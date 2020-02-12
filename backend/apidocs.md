@@ -22,6 +22,7 @@ returns     application/json
 -----------------------
 {
     successful: bool,
+    totalhits: int,
     hits: [
         {
             jobid: str,

@@ -15,19 +15,19 @@ def jobsearch():
     if req is None:
         res = json.dumps({
             "successful": False, 
-            "message": "The user must be specified"
+            "message": "The userid must be specified"
         })
         return Response(res, status=400, mimetype='application/json')
 
-    if ("user" not in req.keys()):
+    if ("userid" not in req.keys()):
         res = json.dumps({
             "successful": False, 
-            "message": "The user must be specified"
+            "message": "The userid must be specified"
         })
-        return Response("user must be specified", status=400, mimetype='application/json')
+        return Response(res, status=400, mimetype='application/json')
 
-    query = getUser(req["user"])
-    user_strengths = query.clifton
+    query = getUser(req["userid"])
+    
 
     if query is None:
         res = json.dumps({
@@ -36,7 +36,7 @@ def jobsearch():
         })
         return Response(res, status=400, mimetype='application/json')
 
-
+    user_strengths = query.clifton
     # Fields to search for keywords in
     keyword_search_fields = [
         'Description', 
@@ -50,7 +50,6 @@ def jobsearch():
         'Quadrant2'
     ]
 
-    careerLevel = req["careerLevel"] if "careerLevel" in req.keys() else None 
     location = req["location"] if "location" in req.keys() else None 
     keywords = req["keywords"] if "keywords" in req.keys() else None
     careerLevel = req["careerlevel"] if "careerlevel" in req.keys() else None 
@@ -65,9 +64,31 @@ def jobsearch():
     )
 
     search_results = current_app.elasticsearch.search(index='joblistings', body=job_search_query)
-    print((search_results["hits"].keys()))
 
-    return Response(str(search_results), 200, mimetype='application/json')
+    res = {
+        "successful": True,
+        "count": search_results["hits"]["total"]["value"],
+        "hits": []
+    }
+
+    for result in search_results["hits"]["hits"]:
+        res["hits"].append({
+            "jobid": result["_id"],
+            "title": result["_source"]["AssignmentTitle"], 
+            "description": result["_source"]["Description"],
+            "location": result["_source"]["Location"],
+            "startdate": result["_source"]["StartDate"],
+            "enddate": result["_source"]["EndDate"],
+            "status": result["_source"]["Status"],
+            "careerLevelFrom": result["_source"]["CareerLevelFrom"],
+            "careerLevelTo": result["_source"]["CareerLevelTo"],
+            "quadrant1": result["_source"]["Quadrant1"],
+            "quadrant2": result["_source"]["Quadrant2"]
+        })
+
+    res = json.dumps(res)
+
+    return Response(res, 200, mimetype='application/json')
 
 
 @api.route("/addfavourite")
