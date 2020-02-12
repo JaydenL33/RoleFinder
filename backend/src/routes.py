@@ -110,6 +110,48 @@ def modifyInterests():
             res = json.dumps(res)
             return Response(res, status=200, mimetype='application/json')
 
+@api.route("/modifyFavourites")
+def modifyFavourites():
+    req = request.json
+    res = {"successful": True} 
+    # Req includes 'username', ['interests': str]
+    if req is None:
+        res = json.dumps({
+            "successful": False, 
+            "message": "The user must be specified"
+        })
+
+    if ("user" not in req.keys()):
+        res = json.dumps({
+            "successful": False, 
+            "message": "The user must be specified"
+        })
+        return Response("user must be specified", status=400, mimetype='application/json')
+    user = getUser(req["User"])
+
+    else:
+        if user != None:
+            interests = user.favourites.split(" ")
+            interests = set(interests)
+
+            modification = req["interests"]
+            modification = set(modification)
+
+            interests = interests.Union(modification)
+            interests = list(interests)
+
+            for i in range(len(interests)):
+                user.interests.append(" " + str(interests[i]))
+            db.session.commit()
+
+            # Response Back
+
+            res["name"] = user.name
+            res["interests"] = user.interests.split()
+            res["strengths"] = user.strengths.split()
+            res = json.dumps(res)
+            return Response(res, status=200, mimetype='application/json')
+
 
 @api.route("/login", methods=['POST'])
 def login():
@@ -148,6 +190,8 @@ def userinfo():
             res = json.dumps(res)
 
     return Response(res, status=200, mimetype='application/json')
+
+
     
 
 @api.route("/")
