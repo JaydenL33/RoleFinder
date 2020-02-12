@@ -22,17 +22,22 @@ returns     application/json
 -----------------------
 {
     successful: bool,
-    jobid: str,
-    title: str,
-    description: str,
-    location: str,
-    startdate: str,
-    enddate: str,
-    status: str (e.g "open", "closed),
-    careerLevelFrom: int, 
-    careerLevelTo: int,
-    quadrant1: str,
-    quadrant2: str
+    hits: [
+        {
+            jobid: str,
+            title: str,
+            description: str,
+            location: str,
+            startdate: str,
+            enddate: str,
+            status: str (e.g "open", "closed),
+            careerLevelFrom: int, 
+            careerLevelTo: int,
+            quadrant1: str,
+            quadrant2: str
+        }
+    ]
+    
 }
 ```
 

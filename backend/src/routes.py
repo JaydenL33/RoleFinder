@@ -65,6 +65,7 @@ def jobsearch():
     )
 
     search_results = current_app.elasticsearch.search(index='joblistings', body=job_search_query)
+    print((search_results["hits"].keys()))
 
     return Response(str(search_results), 200, mimetype='application/json')
 
