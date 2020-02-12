@@ -34,8 +34,8 @@ def jobsearch():
             "successful": False, 
             "message": "The user doesn't exist"
         })
-        return Response(res, status=400, mimetype='application/json')
 
+        return Response(res, status=400, mimetype='application/json')
 
     # Fields to search for keywords in
     keyword_search_fields = [
@@ -73,6 +73,30 @@ def jobsearch():
 def addInterest():
     req = request.json 
     # Req includes 'username', ['interests': str]
+    if req is None:
+        res = json.dumps({
+            "successful": False, 
+            "message": "The user must be specified"
+        })
+
+    if ("user" not in req.keys()):
+        res = json.dumps({
+            "successful": False, 
+            "message": "The user must be specified"
+        })
+        return Response("user must be specified", status=400, mimetype='application/json')
+    user = getUser(req["User"])
+    user.interests = ""
+    interests = req["interests"]
+
+    for i in len(interests):
+        user.interests = user.interests.append(interests[i])
+    db.session.commit()
+
+
+
+
+
 
 
 @api.route("/removeinterest")
