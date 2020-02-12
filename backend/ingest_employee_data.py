@@ -5,7 +5,7 @@ from src.config import Config
 import pandas as pd 
 
 
-csvfile = pd.read_csv("./employees.csv")
+csvfile = pd.read_csv("./data/employees.csv")
 
 app = create_app()
 
