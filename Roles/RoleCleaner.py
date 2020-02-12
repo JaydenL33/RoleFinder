@@ -17,7 +17,7 @@ def DataClean(filename):
 	# First Row Duplication Detection. 
 	data = data.drop_duplicates()
 	# Drops Un-nessecrary Columns
-	data = data.drop(["Skill & Proficiency", "Candidates"], axis=1)
+	data = data.drop(["Candidates"], axis=1)
 
 	pd.set_option('display.width', 10) 
 	# ^ Print Display width for DF. 
@@ -34,6 +34,7 @@ def DataClean(filename):
 	data.drop(indexDuplicated, inplace=True)
 	
 	# Debug Print
+	print(data)
 	print("Length of Data is " + str(len(data)))
 	data.to_csv("Cleaned_Roles.csv", index=False)
 	print ("Success!")
