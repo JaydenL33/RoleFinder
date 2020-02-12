@@ -57,9 +57,16 @@ body        application/json
 
 returns     application/json
 -----------------------
+IF SUCCESSFUL:
 {
     successful: bool
     userid: str
+}
+
+IF UNSUCCESSFUL:
+{
+    successful: bool
+    message: str
 }
 
 ```

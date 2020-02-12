@@ -192,7 +192,6 @@ def modifyFavourites():
         return Response(res, status=400, mimetype='application/json')
 
 
-
 @api.route("/login", methods=['POST'])
 def login():
     
@@ -200,18 +199,34 @@ def login():
 
     if req is None:
         res = {
-            "successful": False
+            "successful": False,
+            "message": "Did not receive a valid request"
         }
-        return Response("login details not provided", status=400, mimetype='text/plain')
+        return Response(res, status=400, mimetype='appliation/json')
 
     if ("userid" not in req.keys()) or ("password" not in req.keys()):
-        return Response("login details not provided", status=400, mimetype='text/plain')
+        res = {
+            "successful": False,
+            "message": "Did not receive login details"
+        }
+        res = json.dumps(res)
+        return Response(res, status=400, mimetype='application/json')
 
     if (isLegitLogin(req["userid"], req["password"])):
-        return Response("success", status=200, mimetype='text/plain')
+        res = {
+            "successful": True,
+            "userid": req["userid"]
+        }
+        res = json.dumps(res)
+        return Response(res, status=200, mimetype='application/json')
 
     else:
-        return Response("login failed", status=400, mimetype='text/plain')
+        res = {
+            "successful": False,
+            "message": "Invalid login details"
+        }
+        res = json.dumps(res)
+        return Response(res, status=400, mimetype='application/json')
 
 
 @api.route("/userinfo", methods=['POST'])
