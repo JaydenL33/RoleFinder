@@ -71,7 +71,8 @@ def jobsearch():
 
 @api.route("/modifyInterests")
 def modifyInterests():
-    req = request.json 
+    req = request.json
+    res = {"successful": True} 
     # Req includes 'username', ['interests': str]
     if req is None:
         res = json.dumps({
@@ -86,19 +87,29 @@ def modifyInterests():
         })
         return Response("user must be specified", status=400, mimetype='application/json')
     user = getUser(req["User"])
-    
-    interests = user.interests.split(" ")
-    interests = set(interests)
+    else:
+        if user != None:
+            interests = user.interests.split(" ")
+            interests = set(interests)
 
-    modification = req["interests"]
-    modification = set(modification)
+            modification = req["interests"]
+            modification = set(modification)
 
-    interests = interests.Union(modification)
-    interests = list(interests)
+            interests = interests.Union(modification)
+            interests = list(interests)
 
-    for i in range(len(interests)):
-        user.interests.append(interests[i])
-    db.session.commit()
+            for i in range(len(interests)):
+                user.interests.append(" " + str(interests[i]))
+            db.session.commit()
+
+            # Response Back
+
+            res["name"] = user.name
+            res["interests"] = user.interests.split()
+            res["strengths"] = user.strengths.split()
+            res = json.dumps(res)
+            return Response(res, status=200, mimetype='application/json')
+
 
 @api.route("/login", methods=['POST'])
 def login():
@@ -133,7 +144,7 @@ def userinfo():
         if result is not None:
             res["name"] = result.name
             res["strengths"] = result.clifton.split(" ")
-            res["interests"] = result.interests
+            res["interests"] = result.interests.split(" ")
             res = json.dumps(res)
 
     return Response(res, status=200, mimetype='application/json')

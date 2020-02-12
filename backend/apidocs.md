@@ -104,8 +104,35 @@ returns     application/json
 {
     successful: bool,
     name: str,
-    strengths: str,
-    interests: str
+    strengths: list,
+    interests: list
+}
+
+
+```
+
+## Mofidy User Info (Modify Interest)
+```
+
+POST api://modifyInterests
+
+body        application/json
+-----------------------
+{
+    userid: str REQUIRED
+    interests: list Optional
+
+}
+
+
+
+returns     application/json
+-----------------------
+{
+    successful: bool,
+    name: str,
+    strengths: list,
+    interests: list
 }
 
 
