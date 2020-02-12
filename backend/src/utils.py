@@ -54,7 +54,7 @@ def buildJobSearchQuery(strengths, keywords=None, location=None, careerLevel=Non
 
     if department is not None:
         filter_condition.append(
-            {'match': {'Department': department}}
+            {'match': {'AssignmentFulfillmentEntity1': department}}
         )
 
     query = {
