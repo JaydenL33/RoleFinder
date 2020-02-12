@@ -10,6 +10,6 @@ class User(db.Model):
     interests = db.Column(db.String(1000), default="", nullable=False)
 
     def __repr__(self):
-        return '<User %r>' % self.name
+        return f"<User {self.name}, {self.clifton}, {self.interests}>" 
 
 

@@ -1,11 +1,76 @@
-from flask import Blueprint, jsonify, request, Response
+from flask import Blueprint, jsonify, request, Response, current_app
 from datetime import datetime
 from . import db
 from .models import User
-from .utils import isLegitLogin
+from .utils import isLegitLogin, getUser, buildJobSearchQuery
 import json
 
 api = Blueprint("api", __name__)
+
+@api.route("/jobsearch", methods=['POST'])
+def jobsearch():
+
+    req = request.json
+    
+    if req is None:
+        res = json.dumps({
+            "successful": False, 
+            "message": "The user must be specified"
+        })
+        return Response(res, status=400, mimetype='application/json')
+
+    if ("user" not in req.keys()):
+        res = json.dumps({
+            "successful": False, 
+            "message": "The user must be specified"
+        })
+        return Response("user must be specified", status=400, mimetype='application/json')
+
+    query = getUser(req["user"])
+    user_strengths = query.clifton
+
+    if query is None:
+        res = json.dumps({
+            "successful": False, 
+            "message": "The user doesn't exist"
+        })
+        return Response(res, status=400, mimetype='application/json')
+
+
+    # Fields to search for keywords in
+    keyword_search_fields = [
+        'Description', 
+        'AssignmentTitle^3', 
+        'TalentSegment^3'
+    ]
+
+    # Fields to search for user strengths in
+    user_strengths_search_fields = [
+        'Quadrant1^2', 
+        'Quadrant2'
+    ]
+
+    careerLevel = req["careerLevel"] if "careerLevel" in req.keys() else None 
+    location = req["location"] if "location" in req.keys() else None 
+    keywords = req["keywords"] if "keywords" in req.keys() else None
+    careerLevel = req["careerlevel"] if "careerlevel" in req.keys() else None 
+    department = req["department"] if "department" in req.keys() else None
+    
+    job_search_query = buildJobSearchQuery(
+        user_strengths, 
+        department=department, 
+        keywords=keywords, 
+        careerLevel=careerLevel, 
+        location=location
+    )
+
+    search_results = current_app.elasticsearch.search(index='joblistings', body=job_search_query)
+
+    return Response(str(search_results), 200, mimetype='application/json')
+
+
+
+
 
 @api.route("/login", methods=['POST'])
 def login():
@@ -47,43 +112,43 @@ def userinfo():
     
 
 
-@api.route('/jobsearch', methods=['GET'])
-def job_search():
-    req = request.json 
+# @api.route('/jobsearch', methods=['GET'])
+# def job_search():
+#     req = request.json 
 
-    res = [{
-        "job-match-score": 96.8, 
-        "city": "London",
-        "country": "United Kingdom", 
-        "assignment-title": "Instructional Designer",
-        "description": "Develop and/or manage the development of training solutions using prescribed tools. Follow Content Development Center process, quality, budget and milestone standards. Implement the overall instructional design of learning products developed in the Content Development Center ensuring that projects successfully evolve from sponsor/stakeholders expectations through the development of assets and their effective and efficient deployment.",
-        "project-supervising-entity": "Products",
-        "sold": True,
-        "client-contract-based": False,
-        "requested-start-data": "6-Feb-20",
-        "end-date": "6-Mar-20",
-        "status": "Open",
-        "talent-segment": "Business Process Specialization", 
-        "assigned-role": "Instructional designer",
-    }, {
-        "job-match-score": 92.1, 
-        "city": "London",
-        "country": "United Kingdom", 
-        "assignment-title": "Application Developer",
-        "description": "Develop and/or manage the development of training solutions using prescribed tools. Follow Content Development Center process, quality, budget and milestone standards. Implement the overall instructional design of learning products developed in the Content Development Center ensuring that projects successfully evolve from sponsor/stakeholders expectations through the development of assets and their effective and efficient deployment.",
-        "project-supervising-entity": "Products",
-        "sold": True,
-        "client-contract-based": False,
-        "requested-start-data": "10-Feb-20",
-        "end-date": "10-Mar-20",
-        "status": "Open",
-        "talent-segment": "Business Process Specialization", 
-        "assigned-role": "Application Developer",
-    }]
+#     res = [{
+#         "job-match-score": 96.8, 
+#         "city": "London",
+#         "country": "United Kingdom", 
+#         "assignment-title": "Instructional Designer",
+#         "description": "Develop and/or manage the development of training solutions using prescribed tools. Follow Content Development Center process, quality, budget and milestone standards. Implement the overall instructional design of learning products developed in the Content Development Center ensuring that projects successfully evolve from sponsor/stakeholders expectations through the development of assets and their effective and efficient deployment.",
+#         "project-supervising-entity": "Products",
+#         "sold": True,
+#         "client-contract-based": False,
+#         "requested-start-data": "6-Feb-20",
+#         "end-date": "6-Mar-20",
+#         "status": "Open",
+#         "talent-segment": "Business Process Specialization", 
+#         "assigned-role": "Instructional designer",
+#     }, {
+#         "job-match-score": 92.1, 
+#         "city": "London",
+#         "country": "United Kingdom", 
+#         "assignment-title": "Application Developer",
+#         "description": "Develop and/or manage the development of training solutions using prescribed tools. Follow Content Development Center process, quality, budget and milestone standards. Implement the overall instructional design of learning products developed in the Content Development Center ensuring that projects successfully evolve from sponsor/stakeholders expectations through the development of assets and their effective and efficient deployment.",
+#         "project-supervising-entity": "Products",
+#         "sold": True,
+#         "client-contract-based": False,
+#         "requested-start-data": "10-Feb-20",
+#         "end-date": "10-Mar-20",
+#         "status": "Open",
+#         "talent-segment": "Business Process Specialization", 
+#         "assigned-role": "Application Developer",
+#     }]
 
-    res = json.dumps(res)
-    res = Response(res, status=200, mimetype="application/json")
-    return res
+#     res = json.dumps(res)
+#     res = Response(res, status=200, mimetype="application/json")
+#     return res
 
 
 

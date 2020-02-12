@@ -22,12 +22,3 @@ with app.app_context():
         db.session.add(user)
 
     db.session.commit()
-
-
-# app=create_app()
-
-# with app.app_context():
-#     u = User(name="Joseph")
-#     db.session.add(u)
-#     db.session.commit()
-#     print(u)

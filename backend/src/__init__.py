@@ -2,6 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from .config import Config
+from elasticsearch import Elasticsearch
 
 db = SQLAlchemy()
 cors = CORS()
@@ -13,8 +14,9 @@ def create_app(config_class=Config):
     db.init_app(app)
     cors.init_app(app)
 
-    from .processing_worker import api
+    from .routes import api
 
     app.register_blueprint(api)
+    app.elasticsearch = Elasticsearch('http://localhost:9200')
 
     return app
