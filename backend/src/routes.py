@@ -86,7 +86,7 @@ def addInterest():
         })
         return Response("user must be specified", status=400, mimetype='application/json')
     user = getUser(req["User"])
-    user.interests = ""
+    user.interests = str(user.interests)
     interests = req["interests"]
 
     for i in len(interests):
@@ -103,7 +103,21 @@ def addInterest():
 def removeInterest():
     req = request.json 
     # Req includes 'username', ['interests': str]
+    if req is None:
+        res = json.dumps({
+            "successful": False, 
+            "message": "The user must be specified"
+        })
 
+    if ("user" not in req.keys()):
+        res = json.dumps({
+            "successful": False, 
+            "message": "The user must be specified"
+        })
+        return Response("user must be specified", status=400, mimetype='application/json')
+
+    user = getUser(req["User"])
+    i
 
 
 @api.route("/login", methods=['POST'])
