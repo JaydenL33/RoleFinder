@@ -143,7 +143,7 @@ def modifyInterests():
         return Response(res, status=400, mimetype='application/json')
 
 @api.route("/addFavourites", methods=["POST"])
-def modifyInterests():
+def modifyFavourites():
     req = request.json
     res = {"successful": True} 
 
@@ -199,12 +199,15 @@ def login():
     req = request.json 
 
     if req is None:
+        res = {
+            "successful": False
+        }
         return Response("login details not provided", status=400, mimetype='text/plain')
 
-    if ("login" not in req.keys()) or ("password" not in req.keys()):
+    if ("userid" not in req.keys()) or ("password" not in req.keys()):
         return Response("login details not provided", status=400, mimetype='text/plain')
 
-    if (isLegitLogin(req["login"], req["password"])):
+    if (isLegitLogin(req["userid"], req["password"])):
         return Response("success", status=200, mimetype='text/plain')
 
     else:
