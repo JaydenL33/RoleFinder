@@ -10,8 +10,8 @@ def isLegitLogin(user, password):
     return False
 
 
-def getUser(user):
-    query = User.query.filter_by(name=user).first()
+def getUser(userid):
+    query = User.query.filter_by(username=userid).first()
     return query
 
 
