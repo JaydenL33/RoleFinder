@@ -69,6 +69,8 @@ def jobsearch():
     return Response(str(search_results), 200, mimetype='application/json')
 
 
+@api.route("/addfavourite")
+
 @api.route("/addinterests")
 def addInterest():
     req = request.json 
