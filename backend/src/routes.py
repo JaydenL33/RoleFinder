@@ -34,8 +34,8 @@ def jobsearch():
             "successful": False, 
             "message": "The user doesn't exist"
         })
-        return Response(res, status=400, mimetype='application/json')
 
+        return Response(res, status=400, mimetype='application/json')
 
     # Fields to search for keywords in
     keyword_search_fields = [
@@ -65,25 +65,40 @@ def jobsearch():
     )
 
     search_results = current_app.elasticsearch.search(index='joblistings', body=job_search_query)
-    print((search_results["hits"].keys()))
 
     return Response(str(search_results), 200, mimetype='application/json')
 
 
-@api.route("/addfavourite")
-
-@api.route("/addinterests")
-def addInterest():
+@api.route("/modifyInterests")
+def modifyInterests():
     req = request.json 
     # Req includes 'username', ['interests': str]
+    if req is None:
+        res = json.dumps({
+            "successful": False, 
+            "message": "The user must be specified"
+        })
 
+    if ("user" not in req.keys()):
+        res = json.dumps({
+            "successful": False, 
+            "message": "The user must be specified"
+        })
+        return Response("user must be specified", status=400, mimetype='application/json')
+    user = getUser(req["User"])
+    
+    interests = user.interests.split(" ")
+    interests = set(interests)
 
-@api.route("/removeinterest")
-def removeInterest():
-    req = request.json 
-    # Req includes 'username', ['interests': str]
+    modification = req["interests"]
+    modification = set(modification)
 
+    interests = interests.Union(modification)
+    interests = list(interests)
 
+    for i in range(len(interests)):
+        user.interests.append(interests[i])
+    db.session.commit()
 
 @api.route("/login", methods=['POST'])
 def login():
