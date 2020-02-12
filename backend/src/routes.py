@@ -93,88 +93,104 @@ def jobsearch():
     return Response(res, 200, mimetype='application/json')
 
 
-@api.route("/modifyInterests")
+@api.route("/setInterests", methods=["POST"])
 def modifyInterests():
     req = request.json
     res = {"successful": True} 
+
+
     # Req includes 'username', ['interests': str]
     if req is None:
         res = json.dumps({
             "successful": False, 
             "message": "The user must be specified"
         })
+        return Response(res, status=400, mimetype='application/json')
 
-    if ("user" not in req.keys()):
+    if ("userid" not in req.keys() or "interests" not in req.keys()):
         res = json.dumps({
             "successful": False, 
-            "message": "The user must be specified"
+            "message": "The userid or interests were not specified"
         })
-        return Response("user must be specified", status=400, mimetype='application/json')
-    user = getUser(req["User"])
+        return Response(res, status=400, mimetype='application/json')
+    
     else:
+        user = getUser(req["userid"])
         if user != None:
-            interests = user.interests.split(" ")
-            interests = set(interests)
+            # interests = user.interests.split(" ")
+            # interests = set(interests)
 
-            modification = req["interests"]
-            modification = set(modification)
+            new_interests = req["interests"]
+            new_interests = set(new_interests)
 
-            interests = interests.Union(modification)
-            interests = list(interests)
-
-            for i in range(len(interests)):
-                user.interests.append(" " + str(interests[i]))
+            new_interests = " ".join(new_interests)
+            user.interests = new_interests
+            
             db.session.commit()
 
             # Response Back
-
             res["name"] = user.name
-            res["interests"] = user.interests.split()
-            res["strengths"] = user.strengths.split()
+            res["successful"] = True
+            res["interests"] = user.interests.split(" ")
             res = json.dumps(res)
             return Response(res, status=200, mimetype='application/json')
+        
 
-@api.route("/modifyFavourites")
-def modifyFavourites():
+        res = json.dumps({
+            "successful": False, 
+            "message": "There was an error"
+        })
+        return Response(res, status=400, mimetype='application/json')
+
+@api.route("/addFavourites", methods=["POST"])
+def modifyInterests():
     req = request.json
     res = {"successful": True} 
+
+
     # Req includes 'username', ['interests': str]
     if req is None:
         res = json.dumps({
             "successful": False, 
             "message": "The user must be specified"
         })
+        return Response(res, status=400, mimetype='application/json')
 
-    if ("user" not in req.keys()):
+    if ("userid" not in req.keys() or "interests" not in req.keys()):
         res = json.dumps({
             "successful": False, 
-            "message": "The user must be specified"
+            "message": "The userid or interests were not specified"
         })
-        return Response("user must be specified", status=400, mimetype='application/json')
-    user = getUser(req["User"])
-
+        return Response(res, status=400, mimetype='application/json')
+    
     else:
+        user = getUser(req["userid"])
         if user != None:
-            interests = user.favourites.split(" ")
-            interests = set(interests)
+            # interests = user.interests.split(" ")
+            # interests = set(interests)
 
-            modification = req["interests"]
-            modification = set(modification)
+            new_interests = req["interests"]
+            new_interests = set(new_interests)
 
-            interests = interests.Union(modification)
-            interests = list(interests)
-
-            for i in range(len(interests)):
-                user.interests.append(" " + str(interests[i]))
+            new_interests = " ".join(new_interests)
+            user.interests = new_interests
+            
             db.session.commit()
 
             # Response Back
-
             res["name"] = user.name
-            res["interests"] = user.interests.split()
-            res["strengths"] = user.strengths.split()
+            res["successful"] = True
+            res["interests"] = user.interests.split(" ")
             res = json.dumps(res)
             return Response(res, status=200, mimetype='application/json')
+        
+
+        res = json.dumps({
+            "successful": False, 
+            "message": "There was an error"
+        })
+        return Response(res, status=400, mimetype='application/json')
+
 
 
 @api.route("/login", methods=['POST'])
