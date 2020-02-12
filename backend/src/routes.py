@@ -69,8 +69,8 @@ def jobsearch():
     return Response(str(search_results), 200, mimetype='application/json')
 
 
-@api.route("/addinterests")
-def addInterest():
+@api.route("/modifyInterests")
+def modifyInterests():
     req = request.json 
     # Req includes 'username', ['interests': str]
     if req is None:
@@ -86,39 +86,19 @@ def addInterest():
         })
         return Response("user must be specified", status=400, mimetype='application/json')
     user = getUser(req["User"])
-    user.interests = str(user.interests)
-    interests = req["interests"]
+    
+    interests = user.interests.split(" ")
+    interests = set(interests)
 
-    for i in len(interests):
-        user.interests = user.interests.append(interests[i])
+    modification = req["interests"]
+    modification = set(modification)
+
+    interests = interests.Union(modification)
+    interests = list(interests)
+
+    for i in range(len(interests)):
+        user.interests.append(interests[i])
     db.session.commit()
-
-
-
-
-
-
-
-@api.route("/removeinterest")
-def removeInterest():
-    req = request.json 
-    # Req includes 'username', ['interests': str]
-    if req is None:
-        res = json.dumps({
-            "successful": False, 
-            "message": "The user must be specified"
-        })
-
-    if ("user" not in req.keys()):
-        res = json.dumps({
-            "successful": False, 
-            "message": "The user must be specified"
-        })
-        return Response("user must be specified", status=400, mimetype='application/json')
-
-    user = getUser(req["User"])
-    i
-
 
 @api.route("/login", methods=['POST'])
 def login():
