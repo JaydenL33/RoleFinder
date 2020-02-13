@@ -33,6 +33,7 @@ def buildJobSearchQuery(strengths, keywords=None, location=None, careerLevel=Non
     must_condition = []
     filter_condition = []
     should_condition = []    
+    favourites_condition = []
 
     must_condition.append(
         {'multi_match': {'query': strengths, 'fields': user_strengths_search_fields, '_name': 'strengths'}}
@@ -59,37 +60,38 @@ def buildJobSearchQuery(strengths, keywords=None, location=None, careerLevel=Non
             {'match': {'AssignmentFulfillmentEntity1': department}}
         )
 
-    if favourite is not None:
-        favourites_condition.append(
-            {'more_like_this': {'query': favourites, 'fields': keyword_search_fields, '_name': 'favourites'}}
-            )
-        query = {
-                'query': {
-                    'bool':{
-                        'must': must_condition,
-                        'should': favourites_condition,
-                        'filter': {
-                            'bool': {
-                                'must': filter_condition
-                            }
-                        }
-                    }
-                }
-            }
+    if favourites is not None:
+        # favourites_condition.append(
+        #     {'more_like_this': {'query': favourites, 'fields': keyword_search_fields, '_name': 'favourites'}}
+        #     )
+        # query = {
+        #         'query': {
+        #             'bool':{
+        #                 'must': must_condition,
+        #                 'should': favourites_condition,
+        #                 'filter': {
+        #                     'bool': {
+        #                         'must': filter_condition
+        #                     }
+        #                 }
+        #             }
+        #         }
+        #     }
+        pass
 
-    if favourites is None:
-        query = {
-            'query': {
-                'bool':{
-                    'must': must_condition,
-                    'filter': {
-                        'bool': {
-                            'must': filter_condition
-                        }
+    # if favourites is None:
+    query = {
+        'query': {
+            'bool':{
+                'must': must_condition,
+                'filter': {
+                    'bool': {
+                        'must': filter_condition
                     }
                 }
             }
         }
+    }
     return query
 
 

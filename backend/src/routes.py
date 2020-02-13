@@ -57,6 +57,7 @@ def jobsearch():
     keywords = req["keywords"] if "keywords" in req.keys() else None
     careerLevel = req["careerlevel"] if "careerlevel" in req.keys() else None 
     department = req["department"] if "department" in req.keys() else None
+    favourites = req["usefavourites"] if "usefavourites" in req.keys() else None
     
 
     in_country = req["incountry"] if "incountry" in req.keys() else None 
@@ -67,6 +68,12 @@ def jobsearch():
 
     if in_country == True:
         location = "Sydney Melbourne Canberra Perth Darwin Hobart Adelaide"
+
+    if favourites:
+        if len(user.favourites) > 0:
+            favourites = user.favourites.split(" ")
+        else:
+            favourites = None
 
     job_search_query = buildJobSearchQuery(
         user_strengths, 
@@ -174,30 +181,29 @@ def addFavourites():
         })
         return Response(res, status=400, mimetype='application/json')
     
-    else:
-        user = getUser(req["userid"])
-        if user != None:
+    user = getUser(req["userid"])
+    if user != None:
 
-            new_favourite = req["favourite"]
-            new_favourite = int(new_favourite)
+        new_favourite = req["favourites"]
+        new_favourite = new_favourite
 
-            user.favourite = list(user.favourite)
+        if len(user.favourites) == 0:
+            user.favourites = new_favourite
+        else:
+            user.favourites = user.favourites + " " + new_favourite
+        db.session.commit()
 
-            user.favourite.append(new_favourite)
-            
-            db.session.commit()
+        # Response Back
+        res["name"] = user.name
+        res = json.dumps(res)
+        return Response(res, status=200, mimetype='application/json')
+    
 
-            # Response Back
-            res["name"] = user.name
-            res = json.dumps(res)
-            return Response(res, status=200, mimetype='application/json')
-        
-
-        res = json.dumps({
-            "successful": False, 
-            "message": "There was an error"
-        })
-        return Response(res, status=400, mimetype='application/json')
+    res = json.dumps({
+        "successful": False, 
+        "message": "There was an error"
+    })
+    return Response(res, status=400, mimetype='application/json')
 
 
 @api.route("/login", methods=['POST'])
