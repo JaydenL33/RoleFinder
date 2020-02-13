@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, Response, current_app
 from datetime import datetime
 from . import db
 from .models import User
-from .utils import isLegitLogin, getUser, buildJobSearchQuery
+from .utils import isLegitLogin, getUser, buildJobSearchQuery, buildJobSearchByIDQuery
 import json
 
 api = Blueprint("api", __name__)
@@ -113,7 +113,7 @@ def jobsearch():
     return Response(res, 200, mimetype='application/json')
 
 
-@api.route("/queryFavourites", methods=['POST'])
+@api.route("/getFavourites", methods=['POST'])
 def queryFavourites():
 
     req = request.json
@@ -142,21 +142,15 @@ def queryFavourites():
         })
         return Response(res, status=400, mimetype='application/json')
         
-
-    # Fields to search for keywords in
-
-    # Fields to search for user strengths in
-
-       len(user.favourites) > 0:
-            favourites = user.favourites.split(" ")
-        else:
-            favourites = None if 
+    favourites = user.favourites
 
 
-    job_search_query = QueryjobsByID(
-        jobids=favourites
-    )
-
+    if len(favourites) > 0:
+        favourites = user.favourites.split(" ")
+    else:
+        favourites = "NAN"
+            
+    job_search_query = buildJobSearchByIDQuery(jobids=favourites)
     search_results = current_app.elasticsearch.search(index='joblistings', body=job_search_query)
 
     res = {
