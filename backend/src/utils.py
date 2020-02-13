@@ -44,9 +44,9 @@ def buildJobSearchQuery(strengths, keywords=None, location=None, careerLevel=Non
         {'multi_match': {'query': strengths, 'fields': user_strengths_search_fields, '_name': 'strengths'}}
     )
     
-    if keywords is not None:
+    if keywords is not None and len(keywords)>0:
         keywords = " ".join(keywords)
-        must_condition.append(
+        filter_condition.append(
             {'multi_match': {'query': keywords, 'fields': keyword_search_fields, '_name': 'keywords'}}
         )
 
@@ -72,7 +72,6 @@ def buildJobSearchQuery(strengths, keywords=None, location=None, careerLevel=Non
                 "_index":"joblistings", 
                 "_id":fav
             })
-            print(fav)
 
         favourites_condition = {'more_like_this': {'fields': similar_doc_search_fields, "like": like_condition, '_name': 'favourites'}}
     
@@ -91,10 +90,9 @@ def buildJobSearchQuery(strengths, keywords=None, location=None, careerLevel=Non
                 }
             }
         },
-        'size': 50
+        'size': 1000
     }
         
-
     
     return query
 
