@@ -36,6 +36,7 @@ def jobsearch():
         })
         return Response(res, status=400, mimetype='application/json')
 
+
     user_strengths = user.clifton
         
 
@@ -72,7 +73,8 @@ def jobsearch():
         department=department, 
         keywords=keywords, 
         careerLevel=careerLevel, 
-        location=location
+        location=location,
+        favourites=favourites
     )
 
     search_results = current_app.elasticsearch.search(index='joblistings', body=job_search_query)
@@ -128,8 +130,6 @@ def modifyInterests():
     else:
         user = getUser(req["userid"])
         if user != None:
-            # interests = user.interests.split(" ")
-            # interests = set(interests)
 
             new_interests = req["interests"]
             new_interests = set(new_interests)
@@ -154,7 +154,7 @@ def modifyInterests():
         return Response(res, status=400, mimetype='application/json')
 
 @api.route("/addFavourites", methods=["POST"])
-def modifyFavourites():
+def addFavourites():
     req = request.json
     res = {"successful": True} 
 
@@ -167,31 +167,28 @@ def modifyFavourites():
         })
         return Response(res, status=400, mimetype='application/json')
 
-    if ("userid" not in req.keys() or "interests" not in req.keys()):
+    if ("userid" not in req.keys()):
         res = json.dumps({
             "successful": False, 
-            "message": "The userid or interests were not specified"
+            "message": "The userid were not specified"
         })
         return Response(res, status=400, mimetype='application/json')
     
     else:
         user = getUser(req["userid"])
         if user != None:
-            # interests = user.interests.split(" ")
-            # interests = set(interests)
 
-            new_interests = req["interests"]
-            new_interests = set(new_interests)
+            new_favourite = req["favourite"]
+            new_favourite = int(new_favourite)
 
-            new_interests = " ".join(new_interests)
-            user.interests = new_interests
+            user.favourite = list(user.favourite)
+
+            user.favourite.append(new_favourite)
             
             db.session.commit()
 
             # Response Back
             res["name"] = user.name
-            res["successful"] = True
-            res["interests"] = user.interests.split(" ")
             res = json.dumps(res)
             return Response(res, status=200, mimetype='application/json')
         
@@ -260,12 +257,9 @@ def userinfo():
             res["interests"] = result.interests.split(" ")
             res["favourites"] = result.favourites.split(" ")
             res = json.dumps(res)
-            return Response(res, status=200, mimetype='application/json')
-        else:
-            res["successful"] = False
-            res["message"] = "There was an error"
-            res = json.dumps(res)
-            return Response(res, status=500, mimetype='application/json')    
+
+    return Response(res, status=200, mimetype='application/json')
+
 
 @api.route("/")
 def serverCheck():

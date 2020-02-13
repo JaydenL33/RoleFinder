@@ -121,7 +121,7 @@ returns     application/json
 
 ```
 
-## Mofidy User Info (Modify Interest)
+## Set User Info (Set Interest)
 ```
 
 POST api://modifyInterests
@@ -143,6 +143,31 @@ returns     application/json
     name: str,
     strengths: list,
     interests: list
+}
+
+
+```
+
+## Adding Favourites (Based off _id of Job)
+```
+
+POST api://addFavourite
+
+body        application/json
+-----------------------
+{
+    userid: str REQUIRED
+    _id: int REQURIED
+
+}
+
+
+
+returns     application/json
+-----------------------
+{
+    successful: bool,
+    _id
 }
 
 
