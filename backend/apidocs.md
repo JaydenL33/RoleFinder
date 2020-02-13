@@ -12,7 +12,9 @@ body
 {
     userid: REQUIRED str ID of user e.g. "clara.franco",
     location: OPTIONAL [str] city names as a string e.g. "Melbourne Sydney"
+    incountry: OPTIONAL boolean (overrides location)
     careerlevel: OPTIONAL int career level 
+    employeecareerlevelonly: OPTIONAL boolean (overrides careerlevel)
     keywords: OPTIONAL [str] keywords to include in search e.g. "java drones"
     department: OPTIONAL str any accenture group e.g. "Accenture Technology"
 }
@@ -57,9 +59,16 @@ body        application/json
 
 returns     application/json
 -----------------------
+IF SUCCESSFUL:
 {
     successful: bool
     userid: str
+}
+
+IF UNSUCCESSFUL:
+{
+    successful: bool
+    message: str
 }
 
 ```

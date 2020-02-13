@@ -39,6 +39,7 @@ def buildJobSearchQuery(strengths, keywords=None, location=None, careerLevel=Non
     )
     
     if keywords is not None:
+        keywords = " ".join(keywords)
         must_condition.append(
             {'multi_match': {'query': keywords, 'fields': keyword_search_fields, '_name': 'keywords'}}
         )
@@ -50,9 +51,8 @@ def buildJobSearchQuery(strengths, keywords=None, location=None, careerLevel=Non
         )
     
     if careerLevel is not None:
-        filter_condition.append(
-            {'match': {'CareerLevelFrom': careerLevel}}
-        )
+        filter_condition.append({'range': {'CareerLevelFrom': {"gte": careerLevel}}})
+        filter_condition.append({'range': {'CareerLevelTo': {"lte": careerLevel}}})
 
     if department is not None:
         filter_condition.append(

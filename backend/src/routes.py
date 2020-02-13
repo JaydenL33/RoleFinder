@@ -26,19 +26,19 @@ def jobsearch():
         })
         return Response(res, status=400, mimetype='application/json')
 
-    query = getUser(req["userid"])
+    user = getUser(req["userid"])
     
 
-    if query is None:
+    if user is None:
         res = json.dumps({
             "successful": False, 
             "message": "The user doesn't exist"
         })
         return Response(res, status=400, mimetype='application/json')
 
-    user_strengths = query.clifton
-    
 
+    user_strengths = user.clifton
+        
 
     # Fields to search for keywords in
     keyword_search_fields = [
@@ -58,6 +58,16 @@ def jobsearch():
     careerLevel = req["careerlevel"] if "careerlevel" in req.keys() else None 
     department = req["department"] if "department" in req.keys() else None
     
+
+    in_country = req["incountry"] if "incountry" in req.keys() else None 
+    employee_level_only = req["employeecareerlevelonly"] if "employeecareerlevelonly" in req.keys() else None 
+
+    if employee_level_only == True:
+        careerLevel = user.careerlevel
+
+    if in_country == True:
+        location = "Sydney Melbourne Canberra Perth Darwin Hobart Adelaide"
+
     job_search_query = buildJobSearchQuery(
         user_strengths, 
         department=department, 
@@ -87,7 +97,8 @@ def jobsearch():
             "careerLevelFrom": result["_source"]["CareerLevelFrom"],
             "careerLevelTo": result["_source"]["CareerLevelTo"],
             "quadrant1": result["_source"]["Quadrant1"],
-            "quadrant2": result["_source"]["Quadrant2"]
+            "quadrant2": result["_source"]["Quadrant2"],
+            "department": result["_source"]["AssignmentFulfillmentEntity1"]
         })
 
     res = json.dumps(res)
@@ -189,7 +200,6 @@ def addFavourites():
         return Response(res, status=400, mimetype='application/json')
 
 
-
 @api.route("/login", methods=['POST'])
 def login():
     
@@ -197,46 +207,59 @@ def login():
 
     if req is None:
         res = {
-            "successful": False
+            "successful": False,
+            "message": "Did not receive a valid request"
         }
-        return Response("login details not provided", status=400, mimetype='text/plain')
+        return Response(res, status=400, mimetype='appliation/json')
 
     if ("userid" not in req.keys()) or ("password" not in req.keys()):
-        return Response("login details not provided", status=400, mimetype='text/plain')
+        res = {
+            "successful": False,
+            "message": "Did not receive login details"
+        }
+        res = json.dumps(res)
+        return Response(res, status=400, mimetype='application/json')
 
     if (isLegitLogin(req["userid"], req["password"])):
-        return Response("success", status=200, mimetype='text/plain')
+        res = {
+            "successful": True,
+            "userid": req["userid"]
+        }
+        res = json.dumps(res)
+        return Response(res, status=200, mimetype='application/json')
 
     else:
-        return Response("login failed", status=400, mimetype='text/plain')
+        res = {
+            "successful": False,
+            "message": "Invalid login details"
+        }
+        res = json.dumps(res)
+        return Response(res, status=400, mimetype='application/json')
 
 
 @api.route("/userinfo", methods=['POST'])
 def userinfo():
     req = request.json 
-    res = {"successful": True}
+    res = {}
 
-    if "name" not in req.keys():
+    if "userid" not in req.keys():
         res["successful"] = False
-        res["message"] = "name not provided"
-        return Response(res, status=401, mimetype="application/json")
+        res["message"] = "Did not receive userid"
+        res = json.dumps(res)
+        return Response(res, status=400, mimetype="application/json")
     
     else:
-        result = User.query.filter_by(name=req["name"]).first()
+        result = getUser(req["userid"])
         if result is not None:
+            res["successful"] = True
             res["name"] = result.name
             res["strengths"] = result.clifton.split(" ")
             res["interests"] = result.interests.split(" ")
+            res["favourites"] = result.favourites.split(" ")
             res = json.dumps(res)
 
     return Response(res, status=200, mimetype='application/json')
 
-@api.route("/queryFavourites", methods=['POST'])
-def queryFavourites():
-
-
-
-    
 
 @api.route("/")
 def serverCheck():
