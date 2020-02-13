@@ -8,6 +8,6 @@ import sys
 
 if "everywhere" in sys.argv:
 # if __name__ == "__main__":
-    app.run(debug=True, host='172.20.10.6')
+    app.run(debug=True, host='172.20.10.3')
 else:
     app.run(debug=True)

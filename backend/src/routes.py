@@ -110,8 +110,11 @@ def jobsearch():
 
 
     for result in search_results["hits"]["hits"]:
-        score = 100 if result["_id"] in user.favourites.split(" ") else min(math.floor((result["_score"]/best_score) ** (0.4) * 100), 100)
-        print(score)
+        
+        favourited = result["_id"] in user.favourites.split(" ")
+        score = 5 if favourited else min(math.floor((result["_score"]/best_score)**0.7 * 5), 5)
+        stars = [1 for i in range(0, score)]
+
         res["hits"].append({
             "jobid": result["_id"],
             "title": result["_source"]["AssignmentTitle"], 
@@ -125,7 +128,9 @@ def jobsearch():
             "quadrant1": result["_source"]["Quadrant1"],
             "quadrant2": result["_source"]["Quadrant2"],
             "department": result["_source"]["AssignmentFulfillmentEntity1"],
-            "score": score            
+            "score": score,
+            "stars": stars,
+            "favourited": favourited           
         })
 
     res["hits"] = sorted(res["hits"], key=lambda i: i["score"], reverse=True) 
@@ -195,7 +200,7 @@ def queryFavourites():
             "quadrant1": result["_source"]["Quadrant1"],
             "quadrant2": result["_source"]["Quadrant2"],
             "department": result["_source"]["AssignmentFulfillmentEntity1"],
-            "score": 100
+            "score": 5
         })
 
     res = json.dumps(res)
@@ -309,10 +314,10 @@ def removeFavourites():
         })
         return Response(res, status=400, mimetype='application/json')
 
-    if ("userid" not in req.keys() or "jobids" not in req.keys()):
+    if ("userid" not in req.keys() or "jobid" not in req.keys()):
         res = json.dumps({
             "successful": False, 
-            "message": "The userid or jobids were not specified"
+            "message": "The userid or jobid were not specified"
         })
         return Response(res, status=400, mimetype='application/json')
     
@@ -320,7 +325,7 @@ def removeFavourites():
 
     if user is not None:
 
-        remove_favourite = req["jobids"]
+        remove_favourite = req["jobid"]
         currentfavourites = user.favourites.split()
         
         try:
