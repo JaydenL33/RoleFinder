@@ -17,6 +17,7 @@ body
     employeecareerlevelonly: OPTIONAL boolean (overrides careerlevel)
     keywords: OPTIONAL [str] keywords to include in search e.g. "java drones"
     department: OPTIONAL str any accenture group e.g. "Accenture Technology"
+    use_favourites OPTIONAL boolean
 }
 
 
@@ -37,7 +38,8 @@ returns     application/json
             careerLevelFrom: int, 
             careerLevelTo: int,
             quadrant1: str,
-            quadrant2: str
+            quadrant2: str,
+            department: str
         }
     ]
     
