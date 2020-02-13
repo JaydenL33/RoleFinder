@@ -52,8 +52,8 @@ import SectionProfile from "./Sections/SectionProfile.js";
 
 import accentureLogoWhite from "assets/img/Acc_Logo_White.png";
 
-import { searchResults } from "variables/general.js";
-const apiURL = "http://172.20.10.2:5000/";
+// import { searchResults } from "variables/general.js";
+const apiURL = "http://172.20.10.6:5000/";
 
 // eslint-disable-next-line react/display-name
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -97,7 +97,7 @@ export default function SearchPage({ ...rest }) {
   const [loginModal, setLoginModal] = React.useState(false);
   const [profileModal, setProfileModal] = React.useState(false);
   const [tags, setTags] = React.useState([]);
-  const [multipleSelect, setMultipleSelect] = React.useState([]);
+  const [multipleSelect, setMultipleSelect] = React.useState(null);
   const [checkedA, setCheckedA] = React.useState(false);
   const [checkedB, setCheckedB] = React.useState(false);
   const [results, setResults] = React.useState({});
@@ -106,7 +106,6 @@ export default function SearchPage({ ...rest }) {
   };
   const handleMultiple = event => {
     setMultipleSelect(event.target.value);
-    console.log(multipleSelect);
   };
   const handleLogin = (username, password) => {
     // local dataset
@@ -122,9 +121,10 @@ export default function SearchPage({ ...rest }) {
     })
       .then(response => response.json())
       .then(auth => {
-        console.log(auth);
+        // console.log(auth);
         if (auth.successful) {
           setUser({ userid: auth.userid });
+          searchRoleList(auth.userid);
         } else {
           alert(auth.message);
         }
@@ -136,7 +136,30 @@ export default function SearchPage({ ...rest }) {
   const handleLogout = () => {
     setUser({ userid: null });
   };
-  const handleProfileSave = profile => {
+  const getProfile = () => {
+    fetch(apiURL + "userinfo", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userid: user.userid
+      })
+    })
+      .then(response => response.json())
+      .then(res => {
+        console.log(res);
+        res.successful &&
+          setUser({
+            ...user,
+            name: res.name,
+            strengths: res.strengths,
+            interests: res.interests
+          });
+      })
+      .catch(error => {
+        alert(error);
+      });
+  };
+  const saveProfile = profile => {
     // local dataset
     // setUser({ userid: 1 });
     // call flower counter API to retrieve all vineyards
@@ -157,50 +180,67 @@ export default function SearchPage({ ...rest }) {
   };
   const addFavourite = jobid => {
     console.log(user.userid, jobid);
-    fetch(apiURL + "login", {
+    fetch(apiURL + "addfavourite", {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userid: user.userid,
-        _id: jobid
+        jobid: jobid
       })
     })
       .then(response => response.json())
       .then(res => {
+        console.log(res);
         res.successful && alert("Successfull");
       })
       .catch(error => {
         alert(error);
       });
   };
-  const searchRoleList = () => {
-    // local dataset
-    setResults(searchResults);
-
-    // call flower counter API to retrieve all vineyards
-    // fetch(apiURL + "jobsearch", {
-    //   method: "post",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({
-    //     userid: user.userid,
-    //     incountry: !checkedA,
-    //     employeecareerlevelonly: !checkedB,
-    //     keywords: tags,
-    //     department: multipleSelect
-    //   })
-    // })
-    //   .then(response => response.json())
-    //   .then(searchResults => {
-    //     setResults(searchResults);
-    //   })
-    //   .catch(error => {
-    //     alert(error);
-    //   });
+  const removeFavourite = jobid => {
+    console.log(user.userid, jobid);
+    fetch(apiURL + "removefavourite", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userid: user.userid,
+        jobid: jobid
+      })
+    })
+      .then(response => response.json())
+      .then(res => {
+        console.log(res);
+        res.successful && alert("Successfull");
+      })
+      .catch(error => {
+        alert(error);
+      });
   };
-
-  React.useEffect(() => {
-    searchRoleList();
-  }, []);
+  const searchRoleList = userid => {
+    // local dataset
+    // setResults(searchResults);
+    // console.log(tags);
+    // call flower counter API to retrieve all vineyards
+    fetch(apiURL + "jobsearch", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userid: userid,
+        use_favourites: checkedA,
+        employeecareerlevelonly: !checkedB,
+        keywords: tags,
+        department: multipleSelect
+      })
+    })
+      .then(response => response.json())
+      .then(searchResults => {
+        console.log(searchResults);
+        setResults(searchResults);
+      })
+      .catch(error => {
+        alert(error);
+      });
+  };
 
   React.useEffect(() => {
     user.userid && setLoginModal(false);
@@ -256,7 +296,10 @@ export default function SearchPage({ ...rest }) {
                   <Button
                     href="#pablo"
                     className={classes.navLink}
-                    onClick={() => setProfileModal(true)}
+                    onClick={() => {
+                      getProfile();
+                      setProfileModal(true);
+                    }}
                     color="transparent"
                   >
                     <AccountCircle /> Profile
@@ -513,7 +556,7 @@ export default function SearchPage({ ...rest }) {
                             label: classes.label,
                             root: classes.labelRoot
                           }}
-                          label="World-wide"
+                          label="Use Favourites"
                         />
                         <FormControlLabel
                           control={
@@ -543,6 +586,7 @@ export default function SearchPage({ ...rest }) {
                           block
                           color="primary"
                           className={classes.button}
+                          onClick={() => searchRoleList(user.userid)}
                         >
                           Search Role
                         </Button>
@@ -621,9 +665,12 @@ export default function SearchPage({ ...rest }) {
               {" "}
               <Close className={classes.modalClose} />
             </Button>
-            <h4 className={classes.modalTitle}>Modal title</h4>
+            <h4 className={classes.modalTitle}>Profile</h4>
           </DialogTitle>
-          <SectionProfile saveProfile={handleProfileSave} />
+          {user.name ? (
+            <SectionProfile saveProfile={saveProfile} user={user} />
+          ) : null}
+
           <DialogActions className={classes.modalFooter}>
             <Button onClick={() => setProfileModal(false)} color="secondary">
               Close
@@ -641,10 +688,12 @@ export default function SearchPage({ ...rest }) {
       >
         <div className={classes.container}>
           {results.successful ? (
-            <SectionRole results={results} addFavourite={addFavourite} />
-          ) : (
-            <p>Search Fail</p>
-          )}
+            <SectionRole
+              results={results}
+              addFavourite={addFavourite}
+              removeFavourite={removeFavourite}
+            />
+          ) : null}
         </div>
       </div>
       <Footer

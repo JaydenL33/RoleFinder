@@ -5,7 +5,7 @@ import React from "react";
 // #############################
 const searchResults = {
   successful: true,
-  totalhits: 5,
+  count: 5,
   hits: [
     {
       jobid: "00805050",

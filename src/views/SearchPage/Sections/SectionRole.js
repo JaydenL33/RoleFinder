@@ -27,8 +27,6 @@ import Button from "components/CustomButtons/Button.js";
 import Primary from "components/Typography/Primary";
 import Pagination from "components/Pagination/Pagination.js";
 
-import technologyDTE from "assets/img/technology.png";
-
 import teamsStyle from "assets/jss/material-kit-pro-react/views/sectionsSections/teamsStyle.js";
 import teamStyle from "assets/jss/material-kit-pro-react/views/landingPageSections/teamStyle.js";
 import modalStyle from "assets/jss/material-kit-pro-react/modalStyle.js";
@@ -50,6 +48,10 @@ const style = theme => ({
     "& > ul": {
       justifyContent: "center!important"
     }
+  },
+  roleScore: {
+    backgroundColor: "rgba(0, 0, 0, 1)",
+    padding: "5px"
   }
 });
 
@@ -62,11 +64,12 @@ const useStyles = makeStyles(style);
 
 function SectionRole(props) {
   const {
-    results: { totalhits, hits },
-    addFavourite
+    results: { count, hits },
+    addFavourite,
+    removeFavourite
   } = props;
   const hitsPerPage = 3;
-  const totalPages = Math.ceil(totalhits / hitsPerPage);
+  const totalPages = Math.ceil(count / hitsPerPage);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [roleKey, setRoleKey] = React.useState();
   const [scrollingModal, setScrollingModal] = React.useState(false);
@@ -78,7 +81,7 @@ function SectionRole(props) {
       <h2 className={classes.title}>Here are our recommendations</h2>
       <div>
         <GridContainer>
-          {totalhits &&
+          {count &&
             hits.map((role, index) => {
               let lowerIndex = (currentPage - 1) * hitsPerPage;
               let uppperIndex = currentPage * hitsPerPage;
@@ -87,9 +90,9 @@ function SectionRole(props) {
                   <GridItem xs={12} sm={6} md={4} key={index}>
                     <Card profile>
                       <CardAvatar profile>
-                        <a href="#pablo" onClick={e => e.preventDefault()}>
-                          <img src={technologyDTE} alt="..." />
-                        </a>
+                        <h1 className={classes.title}>
+                          {role.score} <small>%</small>
+                        </h1>
                       </CardAvatar>
                       <CardBody>
                         <h4 className={classes.cardTitle}>{role.title}</h4>
@@ -154,7 +157,15 @@ function SectionRole(props) {
                         >
                           <Favorite style={{ color: "#FFFFFF" }} />
                         </Button>
-                        <Button justIcon round color="primary" simple>
+                        <Button
+                          justIcon
+                          round
+                          color="primary"
+                          simple
+                          onClick={() => {
+                            removeFavourite(hits[index].jobid);
+                          }}
+                        >
                           <Close />
                         </Button>
                       </CardFooter>
@@ -246,7 +257,8 @@ function SectionRole(props) {
 
 SectionRole.propTypes = {
   results: PropTypes.object,
-  addFavourite: PropTypes.func
+  addFavourite: PropTypes.func,
+  removeFavourite: PropTypes.func
 };
 
 export default SectionRole;
