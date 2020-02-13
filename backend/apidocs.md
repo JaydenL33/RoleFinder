@@ -45,7 +45,43 @@ returns     application/json
     
 }
 ```
+## Query Favourites
 
+```
+POST api://jobsearch
+
+
+body
+-----------------------
+{
+    userid: REQUIRED str ID of user e.g. "clara.franco"
+}
+
+
+returns     application/json
+-----------------------
+{
+    successful: bool,
+    totalhits: int,
+    hits: [
+        {
+            jobid: str,
+            title: str,
+            description: str,
+            location: str,
+            startdate: str,
+            enddate: str,
+            status: str (e.g "open", "closed),
+            careerLevelFrom: int, 
+            careerLevelTo: int,
+            quadrant1: str,
+            quadrant2: str,
+            department: str
+        }
+    ]
+    
+}
+```
 
 ## Logging in
 
@@ -84,12 +120,36 @@ POST api://addfavourite
 body        application/json
 -----------------------
 {
+    userid: str REQURIED
     jobid: str REQUIRED
 }
 
 returns     application/json
 -----------------------
 {
+    userid: str REQURIED
+    successful: bool,
+}
+
+
+```
+
+## Remove Favourites
+
+```
+POST api://addfavourite
+
+body        application/json
+-----------------------
+{
+    userid: str REQURIED
+    jobid: str REQUIRED
+}
+
+returns     application/json
+-----------------------
+{
+    userid: str REQURIED
     successful: bool,
 }
 
@@ -159,7 +219,7 @@ body        application/json
 -----------------------
 {
     userid: str REQUIRED
-    _id: int REQURIED
+    jobids: int REQURIED
 
 }
 
