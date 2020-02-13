@@ -24,6 +24,11 @@ def buildJobSearchQuery(strengths, keywords=None, location=None, careerLevel=Non
         'TalentSegment^3'
     ]
 
+    similar_doc_search_fields = [
+        'Description',
+        'AssignmentTitle^3',
+    ]
+
     # Fields to search for user strengths in
     user_strengths_search_fields = [
         'Quadrant1^2', 
@@ -61,15 +66,15 @@ def buildJobSearchQuery(strengths, keywords=None, location=None, careerLevel=Non
         )
 
     if favourites is not None:
-        favourites = favourites.split("")
         like_condition = []
-        for fav in favours:
+        for fav in favourites:
             like_condition.append({
                 "_index":"joblistings", 
                 "_id":fav
             })
+            print(fav)
 
-        favourites_condition = {'more_like_this': {'fields': keyword_search_fields, "like": like_condition, '_name': 'favourites'}}
+        favourites_condition = {'more_like_this': {'fields': similar_doc_search_fields, "like": like_condition, '_name': 'favourites'}}
     
     else:
         favourites_condition = None
@@ -85,7 +90,8 @@ def buildJobSearchQuery(strengths, keywords=None, location=None, careerLevel=Non
                     }
                 }
             }
-        }
+        },
+        'size': 50
     }
         
 
