@@ -100,7 +100,7 @@ def buildJobSearchQuery(strengths, keywords=None, location=None, careerLevel=Non
 
 
     
-def QueryjobsByID(jobids):
+def buildJobSearchByIDQuery(jobids):
 
     if jobids is not None:
         query = {
