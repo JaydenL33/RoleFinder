@@ -73,7 +73,7 @@ def buildJobSearchQuery(strengths, keywords=None, location=None, careerLevel=Non
     
     else:
         favourites_condition = None
-        
+
     query = {
         'query': {
             'bool':{
@@ -94,15 +94,13 @@ def buildJobSearchQuery(strengths, keywords=None, location=None, careerLevel=Non
 
 
     
-
-
-def jobsByID(jobids):
+def QueryjobsByID(jobids):
 
     if jobids is not None:
         query = {
             'query': {
                 'ids':{
-                    'valiues': jobids
+                    'values': jobids
                      
                 }
             }
