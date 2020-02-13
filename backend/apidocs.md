@@ -219,7 +219,7 @@ body        application/json
 -----------------------
 {
     userid: str REQUIRED
-    jobids: int REQURIED
+    jobids: str REQURIED
 
 }
 
