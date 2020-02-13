@@ -61,29 +61,24 @@ def buildJobSearchQuery(strengths, keywords=None, location=None, careerLevel=Non
         )
 
     if favourites is not None:
-        # favourites_condition.append(
-        #     {'more_like_this': {'query': favourites, 'fields': keyword_search_fields, '_name': 'favourites'}}
-        #     )
-        # query = {
-        #         'query': {
-        #             'bool':{
-        #                 'must': must_condition,
-        #                 'should': favourites_condition,
-        #                 'filter': {
-        #                     'bool': {
-        #                         'must': filter_condition
-        #                     }
-        #                 }
-        #             }
-        #         }
-        #     }
-        pass
+        favourites = favourites.split("")
+        like_condition = []
+        for fav in favours:
+            like_condition.append({
+                "_index":"joblistings", 
+                "_id":fav
+            })
 
-    # if favourites is None:
+        favourites_condition = {'more_like_this': {'fields': keyword_search_fields, "like": like_condition, '_name': 'favourites'}}
+    
+    else:
+        favourites_condition = None
+        
     query = {
         'query': {
             'bool':{
                 'must': must_condition,
+                'should': favourites_condition,
                 'filter': {
                     'bool': {
                         'must': filter_condition
@@ -92,6 +87,9 @@ def buildJobSearchQuery(strengths, keywords=None, location=None, careerLevel=Non
             }
         }
     }
+        
+
+    
     return query
 
 
