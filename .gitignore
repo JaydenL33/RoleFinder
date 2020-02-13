@@ -102,3 +102,24 @@ dist
 
 # TernJS port file
 .tern-port
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.DS_STORE
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+
+.vscode
+*.db
+*/.ipynb_checkpoints
