@@ -200,7 +200,9 @@ def queryFavourites():
             "quadrant1": result["_source"]["Quadrant1"],
             "quadrant2": result["_source"]["Quadrant2"],
             "department": result["_source"]["AssignmentFulfillmentEntity1"],
-            "score": 5
+            "score": 5,
+            "stars": [1,1,1,1,1],
+            "favourited": True
         })
 
     res = json.dumps(res)
