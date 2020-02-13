@@ -36,7 +36,7 @@ import Parallax from "components/Parallax/Parallax.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
-import SnackbarContent from "components/Snackbar/SnackbarContent.js";
+import Snackbar from "components/Snackbar/Snackbar.js";
 // import CustomInput from "components/CustomInput/CustomInput.js";
 
 import landingPageStyle from "assets/jss/material-kit-pro-react/views/landingPageStyle.js";
@@ -198,9 +198,9 @@ export default function SearchPage({ ...rest }) {
         if (res.successful) {
           setTl(true);
           // use this to make the notification autoclose
-          // setTimeout(() => {
-          //   setTl(false);
-          // }, 6000);
+          setTimeout(() => {
+            setTl(false);
+          }, 4000);
           searchRoleList(favouritePage);
         } else {
           alert("Fail");
@@ -225,9 +225,9 @@ export default function SearchPage({ ...rest }) {
         if (res.successful) {
           setTl2(true);
           // use this to make the notification autoclose
-          // setTimeout(() => {
-          //   setTl2(false);
-          // }, 6000);
+          setTimeout(() => {
+            setTl2(false);
+          }, 4000);
           searchRoleList(favouritePage);
         } else {
           alert("Fail");
@@ -243,40 +243,65 @@ export default function SearchPage({ ...rest }) {
     // console.log(tags);
     // call flower counter API to retrieve all vineyards
     if (user.userid) {
-      fetch(apiURL + "jobsearch", {
-        method: "post",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userid: user.userid,
-          incountry: !checkedA,
-          employeecareerlevelonly: !checkedB,
-          keywords: tags,
-          department: multipleSelect,
-          use_favourites
+      if (use_favourites) {
+        fetch(apiURL + "getfavourite", {
+          method: "post",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userid: user.userid
+          })
         })
-      })
-        .then(response => response.json())
-        .then(searchResults => {
-          console.log(searchResults);
-          setResults(searchResults);
+          .then(response => response.json())
+          .then(searchResults => {
+            console.log(searchResults);
+            setResults(searchResults);
+            elmnt.scrollIntoView({
+              behavior: "smooth"
+            });
+          })
+          .catch(error => {
+            alert(error);
+          });
+      } else {
+        fetch(apiURL + "jobsearch", {
+          method: "post",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userid: user.userid,
+            incountry: !checkedA,
+            employeecareerlevelonly: !checkedB,
+            keywords: tags,
+            department: multipleSelect
+          })
         })
-        .catch(error => {
-          alert(error);
-        });
+          .then(response => response.json())
+          .then(searchResults => {
+            console.log(searchResults);
+            setResults(searchResults);
+            elmnt.scrollIntoView({
+              behavior: "smooth"
+            });
+          })
+          .catch(error => {
+            alert(error);
+          });
+      }
     } else {
       setLoginModal(true);
     }
   };
+
+  var elmnt = document.getElementById("results");
 
   React.useEffect(() => {
     user.userid && setLoginModal(false);
     searchRoleList();
   }, [user.userid]);
 
-  React.useEffect(() => {
-    window.scrollTo(0, 0);
-    document.body.scrollTop = 0;
-  });
+  // React.useEffect(() => {
+  //   window.scrollTo(0, 0);
+  //   document.body.scrollTop = 0;
+  // });
   const classes = useStyles();
   return (
     <div>
@@ -290,7 +315,11 @@ export default function SearchPage({ ...rest }) {
                 <Button
                   href="#pablo"
                   className={classes.navLink}
-                  onClick={e => e.preventDefault()}
+                  onClick={e => {
+                    e.preventDefault();
+                    window.scrollTo(0, 0);
+                    document.body.scrollTop = 0;
+                  }}
                   color="transparent"
                 >
                   Home
@@ -384,13 +413,12 @@ export default function SearchPage({ ...rest }) {
                 alt="..."
                 className={classes.accentureLogo}
               />
-              <h1 className={classes.title}>Role Finder</h1>
+              <h1 className={classes.title}>Aseeker</h1>
               <h4>
-                Now you have no excuses, it{"'"}s time to surprise your clients,
-                your competitors, and why not, the world. You probably won
-                {"'"}t have a better chance to show off all your potential if it
-                {"'"}s not by designing a website for your own agency or web
-                studio.
+                A solution desgined to tailor, a personalised job to you. Using
+                smart search queries based off your preferences. Aseeker aims to
+                provide you with a role that matches your strengths, interests
+                and your favourited jobs. Be yourself, seek a change.
               </h4>
             </GridItem>
             <GridItem
@@ -728,7 +756,7 @@ export default function SearchPage({ ...rest }) {
           classes.mainRaiseAdjust
         )}
       >
-        <div className={classes.container}>
+        <div className={classes.container} id="results">
           {results.successful ? (
             <SectionRole
               results={results}
@@ -736,28 +764,28 @@ export default function SearchPage({ ...rest }) {
               removeFavourite={removeFavourite}
             />
           ) : null}
-          {tl ? (
-            <SnackbarContent
-              // place="tl"
-              color="primary"
-              icon={Favorite}
-              message={"Role Favourited"}
-              // open={tl}
-              // closeNotification={() => setTl(false)}
-              close
-            />
-          ) : null}
-          {tl2 ? (
-            <SnackbarContent
-              // place="tl"
-              color="warning"
-              icon={Close}
-              message={"Favourite Removed"}
-              // open={tl2}
-              // closeNotification={() => setTl2(false)}
-              close
-            />
-          ) : null}
+          {/* {tl ? ( */}
+          <Snackbar
+            place="bl"
+            color="primary"
+            icon={Favorite}
+            message={"Role Favourited"}
+            open={tl}
+            closeNotification={() => setTl(false)}
+            close
+          />
+          {/* ) : null} */}
+          {/* {tl2 ? ( */}
+          <Snackbar
+            place="bl"
+            color="warning"
+            icon={Close}
+            message={"Favourite Removed"}
+            open={tl2}
+            closeNotification={() => setTl2(false)}
+            close
+          />
+          {/* ) : null} */}
         </div>
       </div>
       <Footer

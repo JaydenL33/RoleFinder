@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
-import { primaryColor, hexToRgb } from "assets/jss/material-kit-pro-react.js";
+// import { primaryColor, hexToRgb } from "assets/jss/material-kit-pro-react.js";
 // @material-ui/icons
 // import  from "@material-ui/icons/";
 import Favorite from "@material-ui/icons/Favorite";
@@ -22,7 +22,7 @@ import DialogActions from "@material-ui/core/DialogActions";
 import Warning from "components/Typography/Warning.js";
 
 // import CardHeader from "components/Card/CardHeader.js";
-import CardAvatar from "components/Card/CardAvatar.js";
+// import CardAvatar from "components/Card/CardAvatar.js";
 import CardBody from "components/Card/CardBody.js";
 import CardFooter from "components/Card/CardFooter.js";
 import Muted from "components/Typography/Muted.js";
@@ -93,7 +93,7 @@ function SectionRole(props) {
                 return (
                   <GridItem xs={12} sm={6} md={4} key={index}>
                     <Card profile>
-                      <CardHeader profile>
+                      <CardHeader>
                         {role.stars.map((star, key) => {
                           return (
                             <Warning key={key}>

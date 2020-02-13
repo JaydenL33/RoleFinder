@@ -23,6 +23,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 
 // core components
 import Primary from "components/Typography/Primary";
+import Badge from "components/Badge/Badge.js";
 
 import style from "assets/jss/material-kit-pro-react/modalStyle.js";
 
@@ -36,6 +37,7 @@ function SectionProfile(props) {
   const handleTags = regularTags => {
     setTags(regularTags);
   };
+  // console.log(strengths);
   const classes = useStyles();
   return (
     <div>
@@ -53,7 +55,15 @@ function SectionProfile(props) {
           <Primary>
             <h6 className={classes.cardCategory}>Your Strengths</h6>
           </Primary>
-          <div className={classes.cardDescription}>{strengths}</div>
+          <div className={classes.cardDescription}>
+            {strengths.map((strength, key) => {
+              return (
+                <Badge color="primary" key={key}>
+                  {key + 1 + "." + strength}
+                </Badge>
+              );
+            })}
+          </div>
           <Primary>
             <h6 className={classes.cardCategory}>Your Interests</h6>
           </Primary>
