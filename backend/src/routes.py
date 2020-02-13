@@ -4,6 +4,7 @@ from . import db
 from .models import User
 from .utils import isLegitLogin, getUser, buildJobSearchQuery, buildJobSearchByIDQuery
 import json
+import math
 
 api = Blueprint("api", __name__)
 
@@ -57,7 +58,7 @@ def jobsearch():
     keywords = req["keywords"] if "keywords" in req.keys() else None
     careerLevel = req["careerlevel"] if "careerlevel" in req.keys() else None 
     department = req["department"] if "department" in req.keys() else None
-    favourites = req["usefavourites"] if "usefavourites" in req.keys() else None
+    favourites = req["usefavourites"] if "usefavourites" in req.keys() else True
     
 
     in_country = req["incountry"] if "incountry" in req.keys() else None 
@@ -84,6 +85,21 @@ def jobsearch():
         favourites=favourites
     )
 
+    # This bit gets the best possible search result for the individual to get a baseline score for 100%
+    tempfavs = user.favourites.split(" ") if len(user.favourites) > 0 else None
+    tmp_job_search_query = buildJobSearchQuery(
+        user_strengths, 
+        department=None, 
+        keywords=None, 
+        careerLevel=None, 
+        location=None,
+        favourites=tempfavs
+    )
+
+    temp_search_results = current_app.elasticsearch.search(index='joblistings', body=tmp_job_search_query)
+    best_score = temp_search_results["hits"]["hits"][0]["_score"]
+
+
     search_results = current_app.elasticsearch.search(index='joblistings', body=job_search_query)
 
     res = {
@@ -98,14 +114,16 @@ def jobsearch():
             "title": result["_source"]["AssignmentTitle"], 
             "description": result["_source"]["Description"],
             "location": result["_source"]["Location"],
-            "startdate": result["_source"]["StartDate"],
-            "enddate": result["_source"]["EndDate"],
+            "startdate": result["_source"]["StartDate"][:10],
+            "enddate": result["_source"]["EndDate"][:10],
             "status": result["_source"]["Status"],
             "careerLevelFrom": result["_source"]["CareerLevelFrom"],
             "careerLevelTo": result["_source"]["CareerLevelTo"],
             "quadrant1": result["_source"]["Quadrant1"],
             "quadrant2": result["_source"]["Quadrant2"],
-            "department": result["_source"]["AssignmentFulfillmentEntity1"]
+            "department": result["_source"]["AssignmentFulfillmentEntity1"],
+            "score": math.floor(result["_score"]/best_score * 100),
+            # "best_score": best_score
         })
 
     res = json.dumps(res)
@@ -113,7 +131,7 @@ def jobsearch():
     return Response(res, 200, mimetype='application/json')
 
 
-@api.route("/getFavourites", methods=['POST'])
+@api.route("/getfavourite", methods=['POST'])
 def queryFavourites():
 
     req = request.json
@@ -230,7 +248,7 @@ def modifyInterests():
         })
         return Response(res, status=400, mimetype='application/json')
 
-@api.route("/addFavourite", methods=["POST"])
+@api.route("/addfavourite", methods=["POST"])
 def addFavourites():
     req = request.json
     res = {"successful": True} 
@@ -244,7 +262,7 @@ def addFavourites():
         })
         return Response(res, status=400, mimetype='application/json')
 
-    if ("userid" not in req.keys() or "jobids" not in req.keys()):
+    if ("userid" not in req.keys() or "jobid" not in req.keys()):
         res = json.dumps({
             "successful": False, 
             "message": "The userid were not specified"
@@ -254,7 +272,7 @@ def addFavourites():
     user = getUser(req["userid"])
     if user != None:
 
-        new_favourite = req["jobids"]
+        new_favourite = req["jobid"]
         new_favourite = new_favourite
 
         if len(user.favourites) == 0:
@@ -276,7 +294,7 @@ def addFavourites():
     return Response(res, status=400, mimetype='application/json')
 
 
-@api.route("/removeFavourite", methods=["POST"])
+@api.route("/removefavourite", methods=["POST"])
 def removeFavourites():
     req = request.json
     res = {"successful": True} 
