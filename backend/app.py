@@ -4,6 +4,10 @@
 from src import create_app
 
 app = create_app()
+import sys
 
-if __name__ == "__main__":
+if "everywhere" in sys.argv:
+# if __name__ == "__main__":
     app.run(debug=True, host='172.20.10.6')
+else:
+    app.run(debug=True)

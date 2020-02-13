@@ -108,7 +108,10 @@ def jobsearch():
         "hits": []
     }
 
+
     for result in search_results["hits"]["hits"]:
+        score = 100 if result["_id"] in user.favourites.split(" ") else min(math.floor((result["_score"]/best_score) ** (0.4) * 100), 100)
+        print(score)
         res["hits"].append({
             "jobid": result["_id"],
             "title": result["_source"]["AssignmentTitle"], 
@@ -122,9 +125,10 @@ def jobsearch():
             "quadrant1": result["_source"]["Quadrant1"],
             "quadrant2": result["_source"]["Quadrant2"],
             "department": result["_source"]["AssignmentFulfillmentEntity1"],
-            "score": min(math.floor((result["_score"]/best_score) ** (0.4) * 100), 100),            
+            "score": score            
         })
 
+    res["hits"] = sorted(res["hits"], key=lambda i: i["score"], reverse=True) 
     res = json.dumps(res)
 
     return Response(res, 200, mimetype='application/json')
@@ -171,8 +175,6 @@ def queryFavourites():
     
     search_results = current_app.elasticsearch.search(index='joblistings', body=job_search_query)
 
-
-
     res = {
         "successful": True,
         "count": search_results["hits"]["total"]["value"],
@@ -192,7 +194,8 @@ def queryFavourites():
             "careerLevelTo": result["_source"]["CareerLevelTo"],
             "quadrant1": result["_source"]["Quadrant1"],
             "quadrant2": result["_source"]["Quadrant2"],
-            "department": result["_source"]["AssignmentFulfillmentEntity1"]
+            "department": result["_source"]["AssignmentFulfillmentEntity1"],
+            "score": 100
         })
 
     res = json.dumps(res)
