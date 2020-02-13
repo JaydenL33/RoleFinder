@@ -65,3 +65,8 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+
+.vscode
+*.db
+*/.ipynb_checkpoints
