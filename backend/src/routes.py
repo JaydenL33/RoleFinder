@@ -113,6 +113,80 @@ def jobsearch():
     return Response(res, 200, mimetype='application/json')
 
 
+@api.route("/queryFavourites", methods=['POST'])
+def queryFavourites():
+
+    req = request.json
+    
+    if req is None:
+        res = json.dumps({
+            "successful": False, 
+            "message": "The userid must be specified"
+        })
+        return Response(res, status=400, mimetype='application/json')
+
+    if ("userid" not in req.keys()):
+        res = json.dumps({
+            "successful": False, 
+            "message": "The userid must be specified"
+        })
+        return Response(res, status=400, mimetype='application/json')
+
+    user = getUser(req["userid"])
+    
+
+    if user is None:
+        res = json.dumps({
+            "successful": False, 
+            "message": "The user doesn't exist"
+        })
+        return Response(res, status=400, mimetype='application/json')
+        
+
+    # Fields to search for keywords in
+
+    # Fields to search for user strengths in
+
+    if favourites:
+        if len(user.favourites) > 0:
+            favourites = user.favourites.split(" ")
+        else:
+            favourites = None
+            
+
+    job_search_query = QueryjobsByID(
+        jobids=favourites
+    )
+
+    search_results = current_app.elasticsearch.search(index='joblistings', body=job_search_query)
+
+    res = {
+        "successful": True,
+        "count": search_results["hits"]["total"]["value"],
+        "hits": []
+    }
+
+    for result in search_results["hits"]["hits"]:
+        res["hits"].append({
+            "jobid": result["_id"],
+            "title": result["_source"]["AssignmentTitle"], 
+            "description": result["_source"]["Description"],
+            "location": result["_source"]["Location"],
+            "startdate": result["_source"]["StartDate"],
+            "enddate": result["_source"]["EndDate"],
+            "status": result["_source"]["Status"],
+            "careerLevelFrom": result["_source"]["CareerLevelFrom"],
+            "careerLevelTo": result["_source"]["CareerLevelTo"],
+            "quadrant1": result["_source"]["Quadrant1"],
+            "quadrant2": result["_source"]["Quadrant2"],
+            "department": result["_source"]["AssignmentFulfillmentEntity1"]
+        })
+
+    res = json.dumps(res)
+
+    return Response(res, 200, mimetype='application/json')
+
+
 @api.route("/setInterests", methods=["POST"])
 def modifyInterests():
     req = request.json
@@ -184,7 +258,7 @@ def addFavourites():
     user = getUser(req["userid"])
     if user != None:
 
-        new_favourite = req["favourites"]
+        new_favourite = req["jobids"]
         new_favourite = new_favourite
 
         if len(user.favourites) == 0:
