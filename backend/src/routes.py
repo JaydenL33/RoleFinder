@@ -144,14 +144,17 @@ def queryFavourites():
         
     favourites = user.favourites
 
-
     if len(favourites) > 0:
         favourites = user.favourites.split(" ")
     else:
         favourites = "NAN"
             
     job_search_query = buildJobSearchByIDQuery(jobids=favourites)
+    # return Response(str(job_search_query), status=400, mimetype='application/json')
+    
     search_results = current_app.elasticsearch.search(index='joblistings', body=job_search_query)
+
+
 
     res = {
         "successful": True,
@@ -227,7 +230,7 @@ def modifyInterests():
         })
         return Response(res, status=400, mimetype='application/json')
 
-@api.route("/addFavourites", methods=["POST"])
+@api.route("/addFavourite", methods=["POST"])
 def addFavourites():
     req = request.json
     res = {"successful": True} 
@@ -241,7 +244,7 @@ def addFavourites():
         })
         return Response(res, status=400, mimetype='application/json')
 
-    if ("userid" not in req.keys()):
+    if ("userid" not in req.keys() or "jobids" not in req.keys()):
         res = json.dumps({
             "successful": False, 
             "message": "The userid were not specified"
@@ -273,7 +276,7 @@ def addFavourites():
     return Response(res, status=400, mimetype='application/json')
 
 
-@api.route("/removeFavourites", methods=["POST"])
+@api.route("/removeFavourite", methods=["POST"])
 def removeFavourites():
     req = request.json
     res = {"successful": True} 
@@ -295,18 +298,24 @@ def removeFavourites():
     
     user = getUser(req["userid"])
 
-    if user != None:
+    if user is not None:
 
         remove_favourite = req["jobids"]
         currentfavourites = user.favourites.split()
-
-       
-        for remove_favourite in currentfavourites:
-            currentfavourites.remove(remove_favourite)
+        
+        try:
+             currentfavourites.remove(remove_favourite)
             
-        user.favourites = " "
+        except ValueError:
+            res["name"] = user.name
+            res["message"] = "JobID did not exist in the users favourites"
+            res = json.dumps(res)
+            return Response(res, status=200, mimetype='application/json')
 
-        user.favourites.join(currentfavourites)
+        if len(currentfavourites) > 0:
+            user.favourites = " ".join(currentfavourites)
+        else: 
+            user.favourites = ""
 
         db.session.commit()
         # Response Back
