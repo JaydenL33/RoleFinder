@@ -6,8 +6,10 @@ import { primaryColor, hexToRgb } from "assets/jss/material-kit-pro-react.js";
 // @material-ui/icons
 // import  from "@material-ui/icons/";
 import Favorite from "@material-ui/icons/Favorite";
+import FavoriteBorder from "@material-ui/icons/FavoriteBorder";
 import Close from "@material-ui/icons/Close";
 import Subject from "@material-ui/icons/Subject";
+import Star from "@material-ui/icons/Star";
 // core components
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
@@ -17,6 +19,7 @@ import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
+import Warning from "components/Typography/Warning.js";
 
 // import CardHeader from "components/Card/CardHeader.js";
 import CardAvatar from "components/Card/CardAvatar.js";
@@ -30,6 +33,7 @@ import Pagination from "components/Pagination/Pagination.js";
 import teamsStyle from "assets/jss/material-kit-pro-react/views/sectionsSections/teamsStyle.js";
 import teamStyle from "assets/jss/material-kit-pro-react/views/landingPageSections/teamStyle.js";
 import modalStyle from "assets/jss/material-kit-pro-react/modalStyle.js";
+import CardHeader from "components/Card/CardHeader";
 
 const style = theme => ({
   ...teamsStyle,
@@ -74,7 +78,7 @@ function SectionRole(props) {
   const [roleKey, setRoleKey] = React.useState();
   const [scrollingModal, setScrollingModal] = React.useState(false);
   const classes = useStyles();
-  console.log(currentPage, hits);
+  // console.log(currentPage, hits);
 
   return (
     <div className={classes.section}>
@@ -89,11 +93,15 @@ function SectionRole(props) {
                 return (
                   <GridItem xs={12} sm={6} md={4} key={index}>
                     <Card profile>
-                      <CardAvatar profile>
-                        <h1 className={classes.title}>
-                          {role.score} <small>%</small>
-                        </h1>
-                      </CardAvatar>
+                      <CardHeader profile>
+                        {role.stars.map((star, key) => {
+                          return (
+                            <Warning key={key}>
+                              <Star className={classes.starIcons} />
+                            </Warning>
+                          );
+                        })}
+                      </CardHeader>
                       <CardBody>
                         <h4 className={classes.cardTitle}>{role.title}</h4>
                         <Muted>
@@ -147,16 +155,33 @@ function SectionRole(props) {
                         >
                           <Subject /> More
                         </Button>
-                        <Button
-                          justIcon
-                          round
-                          color="primary"
-                          onClick={() => {
-                            addFavourite(hits[index].jobid);
-                          }}
-                        >
-                          <Favorite style={{ color: "#FFFFFF" }} />
-                        </Button>
+                        {role.favourited ? (
+                          <Button
+                            justIcon
+                            round
+                            color="primary"
+                            simple
+                            onClick={() => {
+                              removeFavourite(hits[index].jobid);
+                            }}
+                          >
+                            <Favorite />
+                          </Button>
+                        ) : (
+                          <Button
+                            justIcon
+                            round
+                            color="primary"
+                            simple
+                            onClick={() => {
+                              addFavourite(hits[index].jobid);
+                            }}
+                          >
+                            <FavoriteBorder />
+                            {/* <Favorite style={{ color: "#FFFFFF" }} /> */}
+                          </Button>
+                        )}
+
                         <Button
                           justIcon
                           round

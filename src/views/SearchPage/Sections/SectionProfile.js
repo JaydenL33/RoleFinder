@@ -47,6 +47,10 @@ function SectionProfile(props) {
         <br />
         <div className={classes.textAlignLeft}>
           <Primary>
+            <h6 className={classes.cardCategory}>Your Career Level</h6>
+          </Primary>
+          <div className={classes.cardDescription}>12</div>
+          <Primary>
             <h6 className={classes.cardCategory}>Your Strengths</h6>
           </Primary>
           <div className={classes.cardDescription}>{strengths}</div>
@@ -62,7 +66,7 @@ function SectionProfile(props) {
             }}
             inputProps={{
               className: "react-tagsinput-input",
-              placeholder: "Add Interests"
+              placeholder: "Add Interest"
             }}
           />
         </div>

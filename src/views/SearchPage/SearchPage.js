@@ -36,6 +36,7 @@ import Parallax from "components/Parallax/Parallax.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
+import SnackbarContent from "components/Snackbar/SnackbarContent.js";
 // import CustomInput from "components/CustomInput/CustomInput.js";
 
 import landingPageStyle from "assets/jss/material-kit-pro-react/views/landingPageStyle.js";
@@ -53,7 +54,7 @@ import SectionProfile from "./Sections/SectionProfile.js";
 import accentureLogoWhite from "assets/img/Acc_Logo_White.png";
 
 // import { searchResults } from "variables/general.js";
-const apiURL = "http://172.20.10.6:5000/";
+const apiURL = "http://localhost:5000/";
 
 // eslint-disable-next-line react/display-name
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -100,6 +101,9 @@ export default function SearchPage({ ...rest }) {
   const [multipleSelect, setMultipleSelect] = React.useState(null);
   const [checkedA, setCheckedA] = React.useState(false);
   const [checkedB, setCheckedB] = React.useState(false);
+  const [favouritePage, setFavouritePage] = React.useState(false);
+  const [tl, setTl] = React.useState(false);
+  const [tl2, setTl2] = React.useState(false);
   const [results, setResults] = React.useState({});
   const handleTags = regularTags => {
     setTags(regularTags);
@@ -124,7 +128,6 @@ export default function SearchPage({ ...rest }) {
         // console.log(auth);
         if (auth.successful) {
           setUser({ userid: auth.userid });
-          searchRoleList(auth.userid);
         } else {
           alert(auth.message);
         }
@@ -146,7 +149,7 @@ export default function SearchPage({ ...rest }) {
     })
       .then(response => response.json())
       .then(res => {
-        console.log(res);
+        // console.log(res);
         res.successful &&
           setUser({
             ...user,
@@ -160,6 +163,7 @@ export default function SearchPage({ ...rest }) {
       });
   };
   const saveProfile = profile => {
+    //TODO
     // local dataset
     // setUser({ userid: 1 });
     // call flower counter API to retrieve all vineyards
@@ -179,7 +183,7 @@ export default function SearchPage({ ...rest }) {
     //   });
   };
   const addFavourite = jobid => {
-    console.log(user.userid, jobid);
+    // console.log(user.userid, jobid);
     fetch(apiURL + "addfavourite", {
       method: "post",
       headers: { "Content-Type": "application/json" },
@@ -190,15 +194,24 @@ export default function SearchPage({ ...rest }) {
     })
       .then(response => response.json())
       .then(res => {
-        console.log(res);
-        res.successful && alert("Successfull");
+        // console.log(res);
+        if (res.successful) {
+          setTl(true);
+          // use this to make the notification autoclose
+          // setTimeout(() => {
+          //   setTl(false);
+          // }, 6000);
+          searchRoleList(favouritePage);
+        } else {
+          alert("Fail");
+        }
       })
       .catch(error => {
         alert(error);
       });
   };
   const removeFavourite = jobid => {
-    console.log(user.userid, jobid);
+    // console.log(user.userid, jobid);
     fetch(apiURL + "removefavourite", {
       method: "post",
       headers: { "Content-Type": "application/json" },
@@ -209,41 +222,55 @@ export default function SearchPage({ ...rest }) {
     })
       .then(response => response.json())
       .then(res => {
-        console.log(res);
-        res.successful && alert("Successfull");
+        if (res.successful) {
+          setTl2(true);
+          // use this to make the notification autoclose
+          // setTimeout(() => {
+          //   setTl2(false);
+          // }, 6000);
+          searchRoleList(favouritePage);
+        } else {
+          alert("Fail");
+        }
       })
       .catch(error => {
         alert(error);
       });
   };
-  const searchRoleList = userid => {
+  const searchRoleList = (use_favourites = false) => {
     // local dataset
     // setResults(searchResults);
     // console.log(tags);
     // call flower counter API to retrieve all vineyards
-    fetch(apiURL + "jobsearch", {
-      method: "post",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userid: userid,
-        use_favourites: checkedA,
-        employeecareerlevelonly: !checkedB,
-        keywords: tags,
-        department: multipleSelect
+    if (user.userid) {
+      fetch(apiURL + "jobsearch", {
+        method: "post",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userid: user.userid,
+          incountry: !checkedA,
+          employeecareerlevelonly: !checkedB,
+          keywords: tags,
+          department: multipleSelect,
+          use_favourites
+        })
       })
-    })
-      .then(response => response.json())
-      .then(searchResults => {
-        console.log(searchResults);
-        setResults(searchResults);
-      })
-      .catch(error => {
-        alert(error);
-      });
+        .then(response => response.json())
+        .then(searchResults => {
+          console.log(searchResults);
+          setResults(searchResults);
+        })
+        .catch(error => {
+          alert(error);
+        });
+    } else {
+      setLoginModal(true);
+    }
   };
 
   React.useEffect(() => {
     user.userid && setLoginModal(false);
+    searchRoleList();
   }, [user.userid]);
 
   React.useEffect(() => {
@@ -556,7 +583,7 @@ export default function SearchPage({ ...rest }) {
                             label: classes.label,
                             root: classes.labelRoot
                           }}
-                          label="Use Favourites"
+                          label="World-wide"
                         />
                         <FormControlLabel
                           control={
@@ -586,9 +613,24 @@ export default function SearchPage({ ...rest }) {
                           block
                           color="primary"
                           className={classes.button}
-                          onClick={() => searchRoleList(user.userid)}
+                          onClick={() => {
+                            setFavouritePage(false);
+                            searchRoleList();
+                          }}
                         >
                           Search Role
+                        </Button>
+                        <Button
+                          block
+                          color="primary"
+                          className={classes.button}
+                          simple
+                          onClick={() => {
+                            setFavouritePage(true);
+                            searchRoleList(true);
+                          }}
+                        >
+                          My Favourites
                         </Button>
                       </GridItem>
                     </GridContainer>
@@ -692,6 +734,28 @@ export default function SearchPage({ ...rest }) {
               results={results}
               addFavourite={addFavourite}
               removeFavourite={removeFavourite}
+            />
+          ) : null}
+          {tl ? (
+            <SnackbarContent
+              // place="tl"
+              color="primary"
+              icon={Favorite}
+              message={"Role Favourited"}
+              // open={tl}
+              // closeNotification={() => setTl(false)}
+              close
+            />
+          ) : null}
+          {tl2 ? (
+            <SnackbarContent
+              // place="tl"
+              color="warning"
+              icon={Close}
+              message={"Favourite Removed"}
+              // open={tl2}
+              // closeNotification={() => setTl2(false)}
+              close
             />
           ) : null}
         </div>

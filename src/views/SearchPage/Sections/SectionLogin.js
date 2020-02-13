@@ -92,7 +92,8 @@ function SectionLogin(props) {
                       <Icon className={classes.icon}>lock_outline</Icon>
                     </InputAdornment>
                   ),
-                  placeholder: "Password..."
+                  placeholder: "Password...",
+                  type: "password"
                 }}
               />
             </CardBody>
