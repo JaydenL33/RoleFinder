@@ -350,7 +350,6 @@ export default function SearchPage({ ...rest }) {
               <List className={classes.list + " " + classes.mlAuto}>
                 <ListItem className={classes.listItem}>
                   <Button
-                    href="#pablo"
                     className={classes.navLink}
                     onClick={() => {
                       getProfile();
@@ -363,7 +362,6 @@ export default function SearchPage({ ...rest }) {
                 </ListItem>
                 <ListItem className={classes.listItem}>
                   <Button
-                    href="#pablo"
                     className={classes.navLink}
                     onClick={() => handleLogout()}
                     color="transparent"
