@@ -147,12 +147,11 @@ def queryFavourites():
 
     # Fields to search for user strengths in
 
-    if favourites:
-        if len(user.favourites) > 0:
+       len(user.favourites) > 0:
             favourites = user.favourites.split(" ")
         else:
-            favourites = None
-            
+            favourites = None if 
+
 
     job_search_query = QueryjobsByID(
         jobids=favourites
@@ -267,6 +266,55 @@ def addFavourites():
             user.favourites = user.favourites + " " + new_favourite
         db.session.commit()
 
+        # Response Back
+        res["name"] = user.name
+        res = json.dumps(res)
+        return Response(res, status=200, mimetype='application/json')
+    
+
+    res = json.dumps({
+        "successful": False, 
+        "message": "There was an error"
+    })
+    return Response(res, status=400, mimetype='application/json')
+
+
+@api.route("/removeFavourites", methods=["POST"])
+def removeFavourites():
+    req = request.json
+    res = {"successful": True} 
+
+    # Req includes 'username', ['interests': str]
+    if req is None:
+        res = json.dumps({
+            "successful": False, 
+            "message": "The user must be specified"
+        })
+        return Response(res, status=400, mimetype='application/json')
+
+    if ("userid" not in req.keys() or "jobids" not in req.keys()):
+        res = json.dumps({
+            "successful": False, 
+            "message": "The userid or jobids were not specified"
+        })
+        return Response(res, status=400, mimetype='application/json')
+    
+    user = getUser(req["userid"])
+
+    if user != None:
+
+        remove_favourite = req["jobids"]
+        currentfavourites = user.favourites.split()
+
+       
+        for remove_favourite in currentfavourites:
+            currentfavourites.remove(remove_favourite)
+            
+        user.favourites = " "
+
+        user.favourites.join(currentfavourites)
+
+        db.session.commit()
         # Response Back
         res["name"] = user.name
         res = json.dumps(res)
