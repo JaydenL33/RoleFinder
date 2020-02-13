@@ -34,7 +34,7 @@ import "assets/scss/material-kit-pro-react.scss?v=1.8.0";
 // import PricingPage from "views/PricingPage/PricingPage.js";
 // import ProfilePage from "views/ProfilePage/ProfilePage.js";
 // import ProductPage from "views/ProductPage/ProductPage.js";
-// import SectionsPage from "views/SectionsPage/SectionsPage.js";
+import SectionsPage from "views/SectionsPage/SectionsPage.js";
 // import ShoppingCartPage from "views/ShoppingCartPage/ShoppingCartPage.js";
 // import SignupPage from "views/SignupPage/SignupPage.js";
 import SearchPage from "views/SearchPage/SearchPage.js";
@@ -60,6 +60,7 @@ ReactDOM.render(
       <Route path="/shopping-cart-page" component={ShoppingCartPage} />
       <Route path="/signup-page" component={SignupPage} />
       <Route path="/presentation" component={PresentationPage} /> */}
+      <Route path="/sections" component={SectionsPage} />
       <Route path="/search" component={SearchPage} />
       <Route path="/login-page" component={LoginPage} />
       <Redirect exact from="/" to="/search" />
